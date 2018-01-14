@@ -107,8 +107,6 @@ while True:
         image = get_file_content(subjectCapFileName)
         response = client.basicGeneral(image)
         wordsResult=response['words_result']
-        #print(wordsResult)
-        #wordsResult=[{'words': '下列哪个岛国不是欧洲国家?'}, {'words': '爱尔兰'}, {'words': '马尔代夫'}, {'words': '马耳他'}]
 
         # Store recognized text in dict
         answerCount=QUIZ_APPS[selectedSeq]['answer_count']
