@@ -103,10 +103,13 @@ venv.bak/
 # mypy
 .mypy_cache/
 
+# Mac Finder index file
+.DS_Store
+
 # Secret
 secret.ini
 
-# Images
+# Screenshot Image
 screenshot/*.png
 screenshot/*.jpg
 screenshot/*.jpeg
