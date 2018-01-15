@@ -23,15 +23,15 @@ $ pip install --requirement requirement.txt --yes
 ## 配置百度云OCR
 准备百度云账号。在 控制台 > 产品服务 > 文字识别 中创建应用，并获得应用的AppID, API Key和Secret Key。 
 
-使用获得的AppID, API Key和Secret Key，修改配置文件secret.ini.template，**并将文件重命名为secret.ini**：
+用获得的AppID, API Key和Secret Key修改配置文件secret.ini.template，**并将文件重命名为secret.ini**：
 ```sh
 [BAIDU_OCR]
 # BAIDU_OCR OCR Configuration
 # NO quote needed around value
 # Rename this file as secret.ini after modification
-APP_ID = #REPLACE_THIS_WITH_YOUR_APP_ID
-API_KEY = #REPLACE_THIS_WITH_YOUR_API_KEY
-SECRET_KEY = #REPLACE_THIS_WITH_YOUR_SECRET_KEY
+APP_ID = <YOUR_APP_ID>
+API_KEY = <YOUR_API_KEY>
+SECRET_KEY = <YOUR_SECRET_KEY>
 ```
 ## 调整截图区域
 在文件```main.py```中，变量```QUIZ_APPS```用于配置游戏应用名、答案选项数量、截图裁剪区域和模糊区域。
