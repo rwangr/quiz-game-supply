@@ -89,13 +89,16 @@ except:
 print('[',QUIZ_APPS[selectedSeq]['app_name'],']','has been selected')
 
 while True:
-    nextStep=input('Press [Enter] to pick answer. Press other key to exit: ')
+    nextStep=input('Press [Enter] to supply answer. Press other key to exit: ')
     if nextStep=='':
         startTime = time.time()
 
         # Capture, crop image, and mask noise
-        fullCapFileName=r'./sreenshot/full_'+str(int(startTime))+'.png'
-        subjectCapFileName=r'./sreenshot/subject_'+str(int(startTime))+'.png'
+        screeshotPath=r'./screenshot'
+        if not os.path.exists(screeshotPath):
+            os.makedirs(screeshotPath)
+        fullCapFileName=screeshotPath+'/full_'+str(int(startTime))+'.png'
+        subjectCapFileName=screeshotPath+'/subject_'+str(int(startTime))+'.png'
         os.system('screencapture '+fullCapFileName)
         fullCap=Image.open(fullCapFileName)
         if len(QUIZ_APPS[selectedSeq]['mask_area'])>0:
@@ -105,7 +108,13 @@ while True:
 
         # Read cropped image
         image = get_file_content(subjectCapFileName)
-        response = client.basicGeneral(image)
+
+        try:
+            response = client.basicGeneral(image)
+        except Exception as e:
+            print ('Unexpected error happened when calling Baidu OCR')
+            exit()
+
         wordsResult=response['words_result']
 
         # Store recognized text in dict
@@ -121,8 +130,12 @@ while True:
         subject['answers']=[{'value':seg['words'].strip(string.punctuation).strip(hanzi.punctuation),'count':0} for seg in wordsResult[len(wordsResult)-answerCount:]]
 
         # Query question and obtain each of answer frequency
-        query=AnswerQuery(subject['question'],subject['answers'])
-        subject['answers']=query.search()
+        try:
+            query=AnswerQuery(subject['question'],subject['answers'])
+            subject['answers']=query.search()
+        except Exception as e:
+            print ('Unexpected error happened when querying answer')
+            exit()
 
         # Print the result
         print('---------------------------------')

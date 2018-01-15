@@ -22,7 +22,7 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 '''
 
-import urllib.request,time,_thread,urllib.parse
+import urllib.request,time,_thread,urllib.parse,traceback
 from PIL import Image, ImageFilter
 
 class AnswerQuery:
@@ -31,48 +31,53 @@ class AnswerQuery:
         self.question=question['query_value']
         self.coefficent=question['coeff']
         self.answers=answers
-        self.tread_stamp=[]
+        self.sources={}
+        self.sources['baidu']='https://zhidao.baidu.com/search?lm=0&rn=10&pn=0&fr=search&ie=gbk&word='+urllib.parse.quote(self.question,encoding='gbk')
+        self.sources['sogou']='http://wenwen.sogou.com/s/?w='+urllib.parse.quote(self.question)+'&ch=ww.header.ssda'
+        self.sources['sina']='https://iask.sina.com.cn/search?searchWord='+urllib.parse.quote(self.question)+'&record=1'
+        self.sources['so']='https://wenda.so.com/search/?q='+urllib.parse.quote(self.question)
+        self.treadStamp=[]
+        self.startTime=time.time()
+        self.timeout=6
 
     def query_count_thread(self,url):
         self.get_answer_count(self.get_query_result(url))
-        self.tread_stamp.append(time.time())
+        self.treadStamp.append(time.time())
 
     def get_query_result(self,url):
         opener = urllib.request.build_opener()
-        opener.addheaders = [('User-Agent','Mozilla/5.0 (Linux; Android 4.0.4; Galaxy Nexus Build/IMM76B) AppleWebKit/535.19 (KHTML, like Gecko) Chrome/18.0.1025.133 Mobile Safari/535.19')]
+        opener.addheaders = [('User-Agent','Mozilla/5.0 (Linux) AppleWebKit/604.4.7 (KHTML, like Gecko) Chrome/63.0.3239.132 Safari/604.4.7')]
+
         try:
             queryResult = opener.open(url).read()
-        except:
-            print ('Unexpected error:', sys.exc_info()[0])
-            continue
+            if '=gbk' in url:
+                queryResult=queryResult.decode('gbk').encode('utf-8').decode('utf-8')
+            else:
+                queryResult=str(queryResult,'utf-8')
+        except Exception as e:
+            _thread.exit()
 
-        if '=gbk' in url:
-            queryResult=queryResult.decode('gbk').encode('utf-8').decode('utf-8')
-        else:
-            queryResult=str(queryResult,'utf-8')
         return queryResult
 
     def get_answer_count(self,result):
-        for answer in self.answers:
-            answer['count']+=result.count(answer['value'])*self.coefficent
+        try:
+            for answer in self.answers:
+                answer['count']+=result.count(answer['value'])*self.coefficent
+        except Exception as e:
+            _thread.exit()
 
     def create_thread(self,url):
         try:
-            _thread.start_new_thread(self.query_count_thread,(url,))
-        except:
-            print('Error: unable to start thread')
+            return _thread.start_new_thread(self.query_count_thread,(url,))
+        except Exception as e:
+            print ('Unexpected error: Unable to start the thread')
 
     def search(self):
-        sources={}
-        sources['baidu']='https://zhidao.baidu.com/search?lm=0&rn=10&pn=0&fr=search&ie=gbk&word='+urllib.parse.quote(self.question,encoding='gbk')
-        sources['sogou']='http://wenwen.sogou.com/s/?w='+urllib.parse.quote(self.question)+'&ch=ww.header.ssda'
-        sources['sina']='https://iask.sina.com.cn/search?searchWord='+urllib.parse.quote(self.question)+'&record=1'
-        sources['so']='https://wenda.so.com/search/?q='+urllib.parse.quote(self.question)
-
-        for source in list(sources.values()):
+        for source in list(self.sources.values()):
             self.create_thread(source)
+
         while True:
-            if len(self.tread_stamp)==len(list(sources.values())):
+            if len(self.treadStamp)==len(list(self.sources.values())) or time.time()-self.startTime>self.timeout:
                 break
 
         return self.answers
