@@ -64,7 +64,7 @@ QUIZ_APPS=[
 ![screeshot_croparea](stable/screenshot_crop_area.png)
 
 ## 运行
-使用QuickTime Player新建影片录制，将录制相机选择为iPhone：
+使用QuickTime Player新建影片录制，将录制相机选择为iPhone：
 
 ![screenshot_quicktimeplayer_partial1](stable/screenshot_quicktimeplayer_partial1.png)
 
